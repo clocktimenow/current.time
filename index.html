@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dynamic Clock</title>
+  <link id="favicon" rel="icon" type="image/png" href="timenow/imgs/default.png">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #333;
+      font-family: 'Roboto', sans-serif;
+      height: 100vh;
+      display: flex;
+      transition: background 0.3s, color 0.3s;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 1000;
+      font-size: 16px;
+      transition: transform 0.3s ease, background 0.3s, color 0.3s;
+      transform: translateX(-100%);
+    }
+
+    .sidebar.open {
+      transform: translateX(0);
+    }
+
+
+    .sidebar input, .sidebar select {
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+
+    .dark-mode .sidebar {
+      background: rgba(30, 30, 30, 0.95);
+      color: #f0f0f0;
+    }
+
+    .clock-container {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin-left: 0px;
+      transition: transform 0.3s ease;
+      transform-origin: center center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #time {
+      font-size: 10vw;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    #milliseconds {
+      font-size: 2vw;
+      font-weight: 300;
+      margin-top: 10px;
+      display: none;
+    }
+
+    #date {
+      font-size: 1.5vw;
+      font-weight: 300;
+      margin-top: 20px;
+    }
+
+    .dark-mode {
+      background: #121212;
+      color: #f0f0f0;
+    }
+    
+    #toggleSidebarBtn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1100;
+      font-size: 24px;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 50%;
+      background-color: #f0f0f0;
+      color: #333;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      transition: background 0.3s, opacity 0.5s ease;
+    }
+    #toggleSidebarBtn:hover {
+      background-color: #ddd;
+    }
+    .dark-mode #toggleSidebarBtn {
+      background-color: #222;
+      color: #eee;
+    }
+    .dark-mode #toggleSidebarBtn:hover {
+      background-color: #333;
+    }
+
+    @media (max-width: 768px) {
+      #time {
+        font-size: 20vw;
+      }
+
+      #milliseconds {
+        font-size: 5vw;
+      }
+
+      #date {
+        font-size: 4vw;
+      }
+
+      .sidebar {
+        font-size: 14px;
+        width: 200px;
+      }
+
+      .clock-container {
+        margin-left: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button id="toggleSidebarBtn" title="Settings">&#9881;</button>
+  <div class="sidebar" id="settingsPanel">
+    <h3>Settings</h3>
+    <label><input type="checkbox" id="formatToggle"> 12-hour format</label><br>
+    <label><input type="checkbox" id="darkModeToggle"> Dark mode</label><br>
+    <label><input type="checkbox" id="msToggle"> Show milliseconds</label><br>
+    <label>
+      Zoom:
+      <select id="zoomSelect">
+        <option value="1">1x</option>
+        <option value="1.5">1.5x</option>
+        <option value="2">2x</option>
+        <option value="2.5">2.5x</option>
+        <option value="3">3x</option>
+        <option value="3.5">3.5x</option>
+        <option value="4">4x</option>
+        <option value="4.5">4.5x</option>
+        <option value="5">5x</option>
+        <option value="5.5">5.5x</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="clock-container" id="clockContainer">
+    <div id="time">--:--:--</div>
+    <div id="milliseconds"></div>
+    <div id="date">Loading date...</div>
+  </div>
+
+  <script>
+    const timeEl = document.getElementById('time');
+    const msEl = document.getElementById('milliseconds');
+    const dateEl = document.getElementById('date');
+    const clockContainer = document.getElementById('clockContainer');
+
+    const formatToggle = document.getElementById('formatToggle');
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const msToggle = document.getElementById('msToggle');
+    const zoomSelect = document.getElementById('zoomSelect');
+
+    const sidebar = document.getElementById('settingsPanel');
+    const toggleBtn = document.getElementById('toggleSidebarBtn');
+
+    let is12Hour = false;
+    let showMilliseconds = false;
+    let darkMode = false;
+    let zoomLevel = 1;
+
+    let sidebarTimeout;
+    let btnTimeout;
+
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+    
+      let suffix = '';
+      if (is12Hour) {
+        suffix = hours >= 12 ? ' PM' : ' AM';
+        hours = hours % 12 || 12;
+      }
+    
+      timeEl.textContent = `${String(hours).padStart(2, '0')}:${minutes}:${seconds}${suffix}`;
+    
+      if (showMilliseconds) {
+        msEl.style.display = 'block';
+        msEl.textContent = milliseconds;
+      } else {
+        msEl.style.display = 'none';
+      }
+    
+      const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+      dateEl.textContent = now.toLocaleDateString(undefined, options);
+    }
+
+    setInterval(updateClock, 50);
+    updateClock();
+
+    function updateFaviconAndTitle() {
+      const now = new Date();
+      const hours = now.getHours();
+    
+      const faviconEl = document.getElementById('favicon');
+      let faviconPath = '';
+      let titleText = '';
+    
+      if (hours >= 0 && hours < 3) {
+        faviconPath = 'https://raw.githubusercontent.com/lettuce-9/lettucetimenow/refs/heads/main/imgs/status_midnight.png';
+        titleText = 'Good Night!';
+      } else if (hours >= 3 && hours < 12) {
+        faviconPath = 'https://raw.githubusercontent.com/lettuce-9/lettucetimenow/refs/heads/main/imgs/status_morning.png';
+        titleText = 'Good Morning!';
+      } else if (hours >= 12 && hours < 18) {
+        faviconPath = 'https://raw.githubusercontent.com/lettuce-9/lettucetimenow/refs/heads/main/imgs/status_evening_solar_noon.png';
+        titleText = 'Good Afternoon!';
+      } else {
+        faviconPath = 'https://raw.githubusercontent.com/lettuce-9/lettucetimenow/refs/heads/main/imgs/status_evening.png';
+        titleText = 'Good Evening!';
+      }
+    
+      faviconEl.href = faviconPath;
+      document.title = titleText;
+    }
+
+    formatToggle.addEventListener('change', () => {
+      is12Hour = formatToggle.checked;
+    });
+
+    darkModeToggle.addEventListener('change', () => {
+      darkMode = darkModeToggle.checked;
+      document.body.classList.toggle('dark-mode', darkMode);
+    });
+
+    msToggle.addEventListener('change', () => {
+      showMilliseconds = msToggle.checked;
+    });
+
+    zoomSelect.addEventListener('change', () => {
+      zoomLevel = parseFloat(zoomSelect.value);
+      clockContainer.style.transform = `scale(${zoomLevel})`;
+    });
+
+    function resetSidebarTimer() {
+      clearTimeout(sidebarTimeout);
+      sidebarTimeout = setTimeout(() => {
+        sidebar.classList.remove('open');
+        clockContainer.style.marginLeft = '0';
+        resetButtonTimer();
+      }, 5000);
+    }
+
+    function showToggleButton() {
+      toggleBtn.style.opacity = '1';
+      toggleBtn.style.pointerEvents = 'auto';
+    }
+
+    function hideToggleButton() {
+      toggleBtn.style.opacity = '0';
+      toggleBtn.style.pointerEvents = 'none';
+    }
+
+    function resetButtonTimer() {
+      clearTimeout(btnTimeout);
+      showToggleButton();
+      btnTimeout = setTimeout(() => {
+        hideToggleButton();
+      }, 5000);
+    }
+
+    function resetSidebarTimer() {
+      clearTimeout(sidebarTimeout);
+      sidebarTimeout = setTimeout(() => {
+        sidebar.classList.remove('open');
+        clockContainer.style.marginLeft = '0';
+        resetButtonTimer();
+      }, 5000);
+    }
+    
+    toggleBtn.addEventListener('click', () => {
+      const isOpen = sidebar.classList.toggle('open');
+      clockContainer.style.marginLeft = isOpen ? '250px' : '0';
+    
+      if (isOpen) {
+        resetSidebarTimer();
+      } else {
+        clearTimeout(sidebarTimeout);
+      }
+      resetButtonTimer();
+    });
+
+    document.addEventListener('mousemove', resetButtonTimer);
+
+    sidebar.addEventListener('mousemove', () => {
+      resetSidebarTimer();
+      resetButtonTimer();
+    });
+    sidebar.addEventListener('keydown', () => {
+      resetSidebarTimer();
+      resetButtonTimer();
+    });
+
+    resetButtonTimer();
+    
+    updateFaviconAndTitle();
+    setInterval(updateFaviconAndTitle, 60000);
+  </script>
+</body>
+</html>
