@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dynamic Clock</title>
-  <link id="favicon" rel="icon" type="image/png" href="timenow/imgs/default.png">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;900&display=swap" rel="stylesheet">
+  <title>Loading...</title>
+  <link id="favicon" rel="icon" type="image/png" href="timenow/imgs/default.png">  
   <style>
     * {
       box-sizing: border-box;
@@ -15,7 +14,7 @@
       padding: 0;
       background: #fff;
       color: #333;
-      font-family: 'Roboto', sans-serif;
+      font-family: 'Gotham', sans-serif;
       height: 100vh;
       display: flex;
       transition: background 0.3s, color 0.3s;
@@ -118,6 +117,8 @@
     @media (max-width: 768px) {
       #time {
         font-size: 20vw;
+        font-weight: 700;
+        line-height: 1;
       }
 
       #milliseconds {
@@ -136,6 +137,17 @@
       .clock-container {
         margin-left: 200px;
       }
+  @font-face {
+    font-family: 'Gotham';
+    src: url('fonts/Gotham-Book.ttf') format('truetype');
+    font-weight: 400;
+  }
+
+  @font-face {
+    font-family: 'Gotham';
+    src: url('fonts/Gotham-Bold.ttf') format('truetype');
+    font-weight: 700;
+  }  
     }
   </style>
 </head>
@@ -330,5 +342,6 @@
   </script>
 </body>
 </html>
+
 
 
