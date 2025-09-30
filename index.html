@@ -57,7 +57,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      margin-left: 0px;
+      margin-left: 0px !important; /* Prevent clock from offsetting to the right a little (v2.2b, 2c48e7d issue) */
       transition: transform 0.3s ease;
       transform-origin: center center;
       height: 100vh;
@@ -342,6 +342,7 @@
   </script>
 </body>
 </html>
+
 
 
 
