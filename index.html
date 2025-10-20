@@ -55,8 +55,8 @@
       flex-grow: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: center;
+      justify-content: center;  /*                                                       in desktop view* */
+      align-items: center;  /*                                                           ↓                */
       margin-left: 0px !important; /* Prevent clock from offsetting to the right a little (v2.2b, 2c48e7d issue) */
       transition: transform 0.3s ease;
       transform-origin: center center;
@@ -138,6 +138,38 @@
       .clock-container {
         margin-left: 200px;
       }
+
+    #exitFullscreenBtn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1100;
+      font-size: 22px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 50%;
+      background-color: #f0f0f0;
+      color: #333;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease, background 0.3s;
+    }
+
+    #exitFullscreenBtn:hover {
+      background-color: #ddd;
+    }
+
+    .dark-mode #exitFullscreenBtn {
+      background-color: #222;
+      color: #eee;
+    }
+
+    .dark-mode #exitFullscreenBtn:hover {
+      background-color: #333;
+    }
+
   @font-face {
     /* Site-wide font */
     font-family: 'Montserrat';
@@ -154,6 +186,8 @@
   </style>
 </head>
 <body>
+  <button id="exitFullscreenBtn" title="Exit Fullscreen">&times;</button>
+
   <button id="toggleSidebarBtn" title="Settings">&#9881;</button>
   <div class="sidebar" id="settingsPanel">
     <h3>Settings</h3>
@@ -183,7 +217,7 @@
     <div id="date">Loading date...</div>
   </div>
 
-  <script>
+  <script> // Javascript goes here...
     const timeEl = document.getElementById('time');
     const msEl = document.getElementById('milliseconds');
     const dateEl = document.getElementById('date');
@@ -196,6 +230,7 @@
 
     const sidebar = document.getElementById('settingsPanel');
     const toggleBtn = document.getElementById('toggleSidebarBtn');
+    const exitBtn = document.getElementById('exitFullscreenBtn');
 
     let is12Hour = false;
     let showMilliseconds = false;
@@ -204,6 +239,8 @@
 
     let sidebarTimeout;
     let btnTimeout;
+
+    let exitBtnTimeout;
 
     function updateClock() {
       const now = new Date();
@@ -229,6 +266,19 @@
     
       const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
       dateEl.textContent = now.toLocaleDateString(undefined, options);
+    }
+
+    function showExitButton() {
+      if (!document.fullscreenElement) return;
+      exitBtn.style.opacity = '1';
+      exitBtn.style.pointerEvents = 'auto';
+      clearTimeout(exitBtnTimeout);
+      exitBtnTimeout = setTimeout(() => hideExitButton(), 10000);
+    }
+
+    function hideExitButton() {
+      exitBtn.style.opacity = '0';
+      exitBtn.style.pointerEvents = 'none';
     }
 
     setInterval(updateClock, 50);
@@ -328,6 +378,12 @@
 
     document.addEventListener('mousemove', resetButtonTimer);
 
+    document.addEventListener('dblclick', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      }
+    });
+
     sidebar.addEventListener('mousemove', () => {
       resetSidebarTimer();
       resetButtonTimer();
@@ -335,6 +391,20 @@
     sidebar.addEventListener('keydown', () => {
       resetSidebarTimer();
       resetButtonTimer();
+    });
+
+    document.addEventListener('mousemove', showExitButton);
+
+    exitBtn.addEventListener('click', () => {
+      document.exitFullscreen();
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement) {
+        showExitButton();
+      } else {
+        hideExitButton();
+      }
     });
 
     resetButtonTimer();
