@@ -1,7 +1,9 @@
 ## [current.time](https://clocktimenow.github.io/current.time/)
  
 > [!IMPORTANT]
-> It is heavily important to understand that this project comes from a ***solo developer***. I will usually work on this project from random times, but it depends if i have free time or not. **But nonetheless, <ins>thanks for supporting this project!</ins>** ❤️
+> It is heavily important to understand that this project comes from a ***solo developer***. I will usually work on this project from random times, but it depends if i have free time or not.
+> 
+> **But nonetheless, <ins>thanks for supporting this project!</ins>** ❤️
 
 > [!WARNING]
 > The [Github Pages](https://clocktimenow.github.io/current.time/) website is in ***public testing***. <ins>All changes are expected to be unconfirmed and be rolled back.</ins>
