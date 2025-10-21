@@ -270,18 +270,17 @@
       dateEl.textContent = now.toLocaleDateString(undefined, options);
     }
 
-    async function syncNetworkTime() {
-        try {
-          const res = await fetch("https://worldtimeapi.org/api/ip");
-          const data = await res.json();
-          const serverTime = new Date(data.datetime).getTime();
-          const localTime = Date.now();
-          timeOffset = serverTime - localTime;
-          console.log("Time synced. Offset:", timeOffset, "ms");
-        } catch (err) {
-          console.warn("Failed to sync time:", err);
-        }
-      }
+  async function syncNetworkTime() {
+    try {
+      const res = await fetch("https://worldtimeapi.org/api/ip");
+      if (!res.ok) throw new Error("worldtimeapi failed");
+      return await res.json();
+    } catch {
+      // fallback to timeapi.io
+      const res = await fetch("https://timeapi.io/api/Time/current/ip");
+      return await res.json();
+    }
+  }
 
     function showExitButton() {
       if (!document.fullscreenElement) return;
