@@ -14,11 +14,18 @@ Latest Version - **`Still in test builds!`**
 
 A Work-in-Progress clock website which of course, displays the current time.
 
-<br>
+<hr>
 
-## Oops!
+<hr>
+
+## ***Oops!***
+
 **This section is still being worked on. Come back later!**
 
 ***...Alternatively...***
 
 You can check out the [**`Issues Tab, label:suggestion`**](https://github.com/clocktimenow/current.time/issues?q=is%3Aissue%20state%3Aopen%20label%3Asuggestion) for possible future changes and updates.
+
+<hr>
+
+<hr>
