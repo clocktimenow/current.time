@@ -144,8 +144,8 @@
       top: 20px;
       right: 20px;
       z-index: 1100;
-      font-size: 22px;
-      padding: 8px 12px;
+      font-size: 26px;
+      padding: 12px 16px;
       border: none;
       border-radius: 50%;
       background-color: #f0f0f0;
@@ -168,6 +168,10 @@
 
     .dark-mode #exitFullscreenBtn:hover {
       background-color: #333;
+    }
+
+    body.hide-cursor {
+      cursor: none !important;
     }
 
   @font-face {
@@ -244,6 +248,10 @@
 
     let timeOffset = 0;
 
+    let cursorTimeout;
+    let cursorHidden = false;
+
+
     function updateClock() {
       const now = new Date();
       let hours = now.getHours();
@@ -269,6 +277,22 @@
       const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
       dateEl.textContent = now.toLocaleDateString(undefined, options);
     }
+
+    function resetCursorTimer() {
+        clearTimeout(cursorTimeout);
+
+        // If the cursor was hidden, show it again
+        if (cursorHidden) {
+          document.body.classList.remove('hide-cursor');
+          cursorHidden = false;
+        }
+
+        // Set a new timer to hide it after 15s
+        cursorTimeout = setTimeout(() => {
+          document.body.classList.add('hide-cursor');
+          cursorHidden = true;
+        }, 15000); // 15 seconds
+      }
 
   async function syncNetworkTime() {
     try {
@@ -421,7 +445,12 @@
       }
     });
 
+    document.addEventListener('mousemove', resetCursorTimer);
+    document.addEventListener('mousedown', resetCursorTimer);
+    document.addEventListener('keydown', resetCursorTimer);
+
     resetButtonTimer();
+    resetCursorTimer();
     
     syncNetworkTime();
     setInterval(syncNetworkTime, 10 * 60 * 1000);
