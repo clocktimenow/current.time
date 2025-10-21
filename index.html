@@ -242,6 +242,8 @@
 
     let exitBtnTimeout;
 
+    let timeOffset = 0;
+
     function updateClock() {
       const now = new Date();
       let hours = now.getHours();
@@ -267,6 +269,19 @@
       const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
       dateEl.textContent = now.toLocaleDateString(undefined, options);
     }
+
+    async function syncNetworkTime() {
+        try {
+          const res = await fetch("https://worldtimeapi.org/api/ip");
+          const data = await res.json();
+          const serverTime = new Date(data.datetime).getTime();
+          const localTime = Date.now();
+          timeOffset = serverTime - localTime;
+          console.log("Time synced. Offset:", timeOffset, "ms");
+        } catch (err) {
+          console.warn("Failed to sync time:", err);
+        }
+      }
 
     function showExitButton() {
       if (!document.fullscreenElement) return;
@@ -409,16 +424,11 @@
 
     resetButtonTimer();
     
+    syncNetworkTime();
+    setInterval(syncNetworkTime, 10 * 60 * 1000);
+
     updateFaviconAndTitle();
     setInterval(updateFaviconAndTitle, 1000);
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
