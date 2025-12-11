@@ -170,6 +170,67 @@
       background-color: #333;
     }
 
+    #exitFullscreenBtn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1100;
+      font-size: 26px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 50%;
+      background-color: #fff;
+      color: #FF7F7F;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease, background 0.3s, color 0.3s;
+    }
+
+    #buildInput {
+      padding: 5px 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 150px;
+      background-color: #fff;
+      color: #333;
+    }
+
+    .dark-mode #buildInput {
+      background-color: #333;
+      color: #eee;
+      border: 1px solid #555;
+    }
+
+    .dark-mode #exitFullscreenBtn {
+      background-color: #222;
+      color: darkred;
+    }
+
+    #fullscreenBtn {
+      position: fixed;
+      top: 20px;
+      right: 20px; 
+      z-index: 1100;
+      font-size: 26px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 50%;
+      background-color: #90D5FF;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .dark-mode #fullscreenBtn {
+      background-color: #00008B;
+      color: #fff;
+    }
+
+
     body.hide-cursor {
       cursor: none !important;
     }
@@ -191,6 +252,7 @@
 </head>
 <body>
   <button id="exitFullscreenBtn" title="Exit Fullscreen">&times;</button>
+  <button id="fullscreenBtn" title="Fullscreen">&#x26F6;</button>
 
   <button id="toggleSidebarBtn" title="Settings">&#9881;</button>
   <div class="sidebar" id="settingsPanel">
@@ -208,6 +270,11 @@
         <option value="2.25">2.25x</option>
         <option value="2.5">2.5x</option>
       </select>
+    </label>
+    <br>
+    <label>
+      Build:
+      <input type="text" id="buildInput" value="production" />
     </label>
   </div>
 
@@ -231,6 +298,10 @@
     const sidebar = document.getElementById('settingsPanel');
     const toggleBtn = document.getElementById('toggleSidebarBtn');
     const exitBtn = document.getElementById('exitFullscreenBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+    const buildInput = document.getElementById('buildInput');
+    const loadBuildBtn = document.getElementById('loadBuildBtn');
 
     let is12Hour = false;
     let showMilliseconds = false;
@@ -277,13 +348,11 @@
     function resetCursorTimer() {
         clearTimeout(cursorTimeout);
 
-        // If the cursor was hidden, show it again
         if (cursorHidden) {
           document.body.classList.remove('hide-cursor');
           cursorHidden = false;
         }
 
-        // Set a new timer to hide it after 15s
         cursorTimeout = setTimeout(() => {
           document.body.classList.add('hide-cursor');
           cursorHidden = true;
@@ -317,6 +386,25 @@
 
     setInterval(updateClock, 50);
     updateClock();
+
+    function loadBuild() {
+      const buildName = buildInput.value.trim().toLowerCase();
+      if (buildName === 'production') {
+        if (!window.location.href.endsWith('index.html') &&
+            !window.location.href.endsWith('/')) {
+          window.location.href = 'https://clocktimenow.github.io/current.time';
+        }
+      } else if (buildName === 'publictesting') {
+        window.location.href = 'https://clocktimenow.github.io/current.time/extrabuilds/404.html/';
+      } else {
+        alert('Unknown build! Enter "production" or "publictesting".');
+      }
+    }
+
+    buildInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') loadBuild();
+    });
+
 
     function updateFaviconAndTitle() {
       const now = new Date();
@@ -397,6 +485,44 @@
         resetButtonTimer();
       }, 5000);
     }
+
+    function enterFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      }
+    }
+
+    function exitFullscreen() {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      }
+    }
+
+    fullscreenBtn.addEventListener('click', enterFullscreen);
+    exitBtn.addEventListener('click', exitFullscreen);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() === 'f') {
+        if (!document.fullscreenElement) {
+          enterFullscreen();
+        } else {  
+          exitFullscreen();
+        }
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement) {
+        // In fullscreen
+        exitBtn.style.color = darkMode ? 'darkred' : 'red';
+        fullscreenBtn.style.display = 'none';
+        showExitButton();
+      } else {
+        exitBtn.style.color = darkMode ? '#222' : '#f0f0f0';
+        fullscreenBtn.style.display = 'block';
+        hideExitButton();
+      }
+    });
     
     toggleBtn.addEventListener('click', () => {
       const isOpen = sidebar.classList.toggle('open');
