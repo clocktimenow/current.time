@@ -12,20 +12,14 @@ Latest Version - **`Still in test builds!`**
 
 ## About
 
-A Work-in-Progress clock website which of course, displays the current time.
+A clock website which of course, displays the current time.
+###### Still work-in-progress, expect content to change!
 
 <hr>
 
-<hr>
+## <p align="center">404 Not Found</p>
+###### <p align="center">Couldn't seem to find it here...</p>
 
-## ***Oops!***
-
-**This section is still being worked on. Come back later!**
-
-***...Alternatively...***
-
-You can check out the [**`Issues Tab, label:suggestion`**](https://github.com/clocktimenow/current.time/issues?q=is%3Aissue%20state%3Aopen%20label%3Asuggestion) for possible future changes and updates.
-
-<hr>
+We haven't made the *documents section* yet, as this project is **<u>still in beta.</u>** Anything can change, so features are not final. Check back soon, or [check commits for changelogs](https://github.com/clocktimenow/current.time/commits/main/). Thanks for the patience!
 
 <hr>
