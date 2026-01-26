@@ -7,6 +7,8 @@
 
 > [!WARNING]
 > The [Github Pages](https://clocktimenow.github.io/current.time/) website is in ***public testing***. <ins>All changes are expected to be unconfirmed and be rolled back.</ins>
+>
+> **All fonts used are free to use without a license** ***(based on research).***
 
 Latest Version - **`Still in test builds!`**
 
